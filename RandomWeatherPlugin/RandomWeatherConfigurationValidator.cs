@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using AssettoServer.Shared.Weather;
 
 namespace RandomWeatherPlugin;
@@ -19,7 +19,7 @@ public class RandomWeatherConfigurationValidator : AbstractValidator<RandomWeath
                         .Must(wt => !wt.ContainsKey(WeatherFxType.None))
                         .WithMessage("WeatherFX Type \"None\" cannot be used as a weather");
                     RuleForEach(cfg => cfg.WeatherTransitions)
-                        .Must(x => !x.Value.ContainsKey(WeatherFxType.None) || x.Value[WeatherFxType.None] <= 0)
+                        .Must(wt => !wt.Value.ContainsKey(WeatherFxType.None) || wt.Value[WeatherFxType.None] <= 0)
                         .WithMessage("WeatherFX Type \"None\" cannot be used as a weather");
                     RuleForEach(cfg => cfg.WeatherTransitions)
                         .Must(wt => wt.Value.Values.Any(v => v > 0))
@@ -45,7 +45,7 @@ public class RandomWeatherConfigurationValidator : AbstractValidator<RandomWeath
                         .Must(ww => ww.Values.Any(v => v > 0))
                         .WithMessage("At least one entry in WeatherWeights must have a weight greater than 0");
                     RuleForEach(cfg => cfg.WeatherWeights)
-                        .ChildRules(ww => { ww.RuleFor(w => w.Value).GreaterThanOrEqualTo(0); });
+                        .ChildRules(ww => { ww.RuleFor(wte => wte.Value).GreaterThanOrEqualTo(0); });
                 });
         });
     }

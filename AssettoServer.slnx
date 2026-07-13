@@ -11,6 +11,7 @@
   <Project Path="LiveWeatherPlugin\LiveWeatherPlugin.csproj" />
   <Project Path="RaceChallengePlugin\RaceChallengePlugin.csproj" />
   <Project Path="RandomWeatherPlugin\RandomWeatherPlugin.csproj" />
+  <Project Path="RandomTimePlugin\RandomTimePlugin.csproj" />
   <Project Path="ReplayPlugin\ReplayPlugin.csproj">
     <Build Project="false" />
   </Project>

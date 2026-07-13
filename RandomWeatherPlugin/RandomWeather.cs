@@ -1,4 +1,3 @@
-﻿using AssettoServer.Server.Configuration;
 using AssettoServer.Server.Weather;
 using AssettoServer.Shared.Weather;
 using Microsoft.Extensions.Hosting;
@@ -6,8 +5,10 @@ using Serilog;
 
 namespace RandomWeatherPlugin;
 
-public class RandomWeather : BackgroundService
+public class RandomWeather : BackgroundService, IRandomWeatherCycle
 {
+    public event EventHandler<WeatherCycleEventArgs>? CycleStarted;
+
     private struct WeatherWeight
     {
         internal WeatherFxType Weather { get; init; }
@@ -46,6 +47,7 @@ public class RandomWeather : BackgroundService
             });
 
             RecalculateWeights(_configuration.WeatherTransitions[next.WeatherFxType]);
+            WarnAboutUnreachableWeathers(_configuration.WeatherTransitions, next.WeatherFxType);
         }
         else if (_configuration.Mode == RandomWeatherMode.Default)
         {
@@ -58,7 +60,7 @@ public class RandomWeather : BackgroundService
         _weathers.Clear();
 
         float weightSum = input
-            .Select(w => w.Value)
+            .Select(wt => wt.Value)
             .Sum();
 
         float prefixSum = 0.0f;
@@ -90,7 +92,7 @@ public class RandomWeather : BackgroundService
         float rng = Random.Shared.NextSingle();
         WeatherFxType weather = WeatherFxType.None;
 
-        int begin = 0, end = _weathers.Count;
+        int begin = 0, end = _weathers.Count - 1;
         while (begin <= end)
         {
             int i = (begin + end) / 2;
@@ -107,6 +109,34 @@ public class RandomWeather : BackgroundService
         }
 
         return weather;
+    }
+
+    private static void WarnAboutUnreachableWeathers(Dictionary<WeatherFxType, Dictionary<WeatherFxType, float>> transitions, WeatherFxType start)
+    {
+        var visited = new HashSet<WeatherFxType> { start };
+        var queue = new Queue<WeatherFxType>();
+        queue.Enqueue(start);
+
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+            if (!transitions.TryGetValue(current, out var destinations)) continue;
+
+            foreach (var (weather, weight) in destinations)
+            {
+                if (weight > 0 && visited.Add(weather))
+                {
+                    queue.Enqueue(weather);
+                }
+            }
+        }
+
+        var unreachable = transitions.Keys.Where(wt => !visited.Contains(wt)).ToList();
+        if (unreachable.Count > 0)
+        {
+            Log.Warning("The following weathers in WeatherTransitions are configured but can never be reached starting from {Start} and will never occur: {Unreachable}",
+                start, string.Join(", ", unreachable));
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -151,6 +181,12 @@ public class RandomWeather : BackgroundService
 
                 if (_configuration.Mode == RandomWeatherMode.TransitionTable)
                     RecalculateWeights(_configuration.WeatherTransitions[next]);
+
+                CycleStarted?.Invoke(this, new WeatherCycleEventArgs
+                {
+                    TransitionDurationMs = transitionDuration,
+                    WeatherDurationMs = weatherDuration
+                });
             }
             catch (Exception ex)
             {

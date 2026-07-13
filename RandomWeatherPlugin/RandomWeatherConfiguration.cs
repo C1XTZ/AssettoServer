@@ -1,4 +1,4 @@
-﻿using AssettoServer.Server.Configuration;
+using AssettoServer.Server.Configuration;
 using AssettoServer.Shared.Weather;
 using JetBrains.Annotations;
 using YamlDotNet.Serialization;
@@ -10,22 +10,25 @@ public class RandomWeatherConfiguration : IValidateConfiguration<RandomWeatherCo
 {
     [YamlMember(Description = "Which mode should be used for weather randomization \nAvailable values: 'Default' and 'TransitionTable'")]
     public RandomWeatherMode Mode { get; set; } = RandomWeatherMode.Default;
-    
+
     [YamlMember(Description = "Minimum duration until next weather change")]
     public int MinWeatherDurationMinutes { get; set; } = 5;
+
     [YamlMember(Description = "Maximum duration until next weather change")]
     public int MaxWeatherDurationMinutes { get; set; } = 30;
 
     [YamlMember(Description = "Minimum weather transition duration")]
     public int MinTransitionDurationSeconds { get; set; } = 120;
+
     [YamlMember(Description = "Maximum weather transition duration")]
     public int MaxTransitionDurationSeconds { get; set; } = 600;
-    
+
     [YamlMember(Description = "If true, the server will start and apply the first random weather instantly, skipping the initial transition from the weather configured in server_cfg.ini")]
     public bool RandomizeInitialWeather { get; set; } = false;
-    
+
     [YamlMember(Description = "Weights for weather transition, only listed weathers will be counted\nCheck the reference config to see the structure")]
     public Dictionary<WeatherFxType, Dictionary<WeatherFxType, float>> WeatherTransitions { get; init; } = new();
+
     [YamlMember(Description = "Weights for random weather selection, removing a weight or setting it to 0 blacklists a weather\nYou can also use decimals like 0.1")]
     public Dictionary<WeatherFxType, float> WeatherWeights { get; init; } = new()
     {
