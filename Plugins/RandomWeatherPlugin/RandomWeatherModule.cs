@@ -82,6 +82,6 @@ public class RandomWeatherModule : AssettoServerModule<RandomWeatherConfiguratio
     
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterType<RandomWeather>().AsSelf().As<IHostedService>().SingleInstance();
+        builder.RegisterType<RandomWeather>().AsSelf().As<IRandomWeatherCycle>().As<IHostedService>().SingleInstance();
     }
 }

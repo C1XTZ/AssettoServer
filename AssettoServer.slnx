@@ -10,6 +10,7 @@
   <Project Path="Plugins\GeoIPPlugin\GeoIPPlugin.csproj" />
   <Project Path="Plugins\LiveWeatherPlugin\LiveWeatherPlugin.csproj" />
   <Project Path="Plugins\RaceChallengePlugin\RaceChallengePlugin.csproj" />
+  <Project Path="Plugins\RandomTimePlugin\RandomTimePlugin.csproj" />
   <Project Path="Plugins\RandomWeatherPlugin\RandomWeatherPlugin.csproj" />
   <Project Path="Plugins\ReplayPlugin\ReplayPlugin.csproj">
     <Build Project="false" />

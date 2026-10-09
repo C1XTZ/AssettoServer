@@ -37,7 +37,7 @@ public class DynamicTrafficDensity : BackgroundService
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_configuration.Server.TimeOfDayMultiplier == 0 )
+        if (_configuration.Server.TimeOfDayMultiplier == 0)
         {
             throw new ConfigurationException("TIME_OF_DAY_MULT in server_cfg.ini must be greater than 0");
         }
@@ -49,8 +49,8 @@ public class DynamicTrafficDensity : BackgroundService
                 throw new ConfigurationException($"Weather '{wfxParam.Graphics}' must have a 'mult' greater than 0");
             }
         }
-        
-        return base.StartAsync(cancellationToken);  
+
+        return base.StartAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -68,7 +68,7 @@ public class DynamicTrafficDensity : BackgroundService
             }
             finally
             {
-                await Task.Delay(TimeSpan.FromMinutes(10.0 / _configuration.Server.TimeOfDayMultiplier), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(10.0 / Math.Max(Math.Abs(_configuration.Server.TimeOfDayMultiplier), 0.001f)), stoppingToken);
             }
         }
     }
